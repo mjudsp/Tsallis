@@ -688,7 +688,7 @@ cdef class TsallisEntropy(ClassificationCriterion):
 
         cdef SIZE_t* n_classes = self.n_classes
         cdef double* sum_total = self.sum_total
-        cdef double gini = 0.0
+        cdef double tsallisEntropy = 0.0
         cdef double sq_count
         cdef double count_k
         cdef SIZE_t k
@@ -701,18 +701,18 @@ cdef class TsallisEntropy(ClassificationCriterion):
                 count_k = sum_total[c]
                 sq_count += count_k * count_k
 
-            gini += 1.0 - sq_count / (self.weighted_n_node_samples *
+            tsallisEntropy += 1.0 - sq_count / (self.weighted_n_node_samples *
                                       self.weighted_n_node_samples)
 
             sum_total += self.sum_stride
 
-        return gini / self.n_outputs
+        return tsallisEntropy / self.n_outputs
 
     cdef void children_impurity(self, double* impurity_left,
                                 double* impurity_right) nogil:
         """Evaluate the impurity in children nodes
         i.e. the impurity of the left child (samples[start:pos]) and the
-        impurity the right child (samples[pos:end]) using the Gini index.
+        impurity the right child (samples[pos:end]) using the Tsallis Entropy.
         Parameters
         ----------
         impurity_left: DTYPE_t
@@ -724,8 +724,8 @@ cdef class TsallisEntropy(ClassificationCriterion):
         cdef SIZE_t* n_classes = self.n_classes
         cdef double* sum_left = self.sum_left
         cdef double* sum_right = self.sum_right
-        cdef double gini_left = 0.0
-        cdef double gini_right = 0.0
+        cdef double tsallisEntropy_left = 0.0
+        cdef double tsallisEntropy_right = 0.0
         cdef double sq_count_left
         cdef double sq_count_right
         cdef double count_k
@@ -743,17 +743,17 @@ cdef class TsallisEntropy(ClassificationCriterion):
                 count_k = sum_right[c]
                 sq_count_right += count_k * count_k
 
-            gini_left += 1.0 - sq_count_left / (self.weighted_n_left *
+            tsallisEntropy_left += 1.0 - sq_count_left / (self.weighted_n_left *
                                                 self.weighted_n_left)
 
-            gini_right += 1.0 - sq_count_right / (self.weighted_n_right *
+            tsallisEntropy_right += 1.0 - sq_count_right / (self.weighted_n_right *
                                                   self.weighted_n_right)
 
             sum_left += self.sum_stride
             sum_right += self.sum_stride
 
-        impurity_left[0] = gini_left / self.n_outputs
-        impurity_right[0] = gini_right / self.n_outputs
+        impurity_left[0] = tsallisEntropy_left / self.n_outputs
+        impurity_right[0] = tsallisEntropy_right / self.n_outputs
 ######
 
 cdef class RegressionCriterion(Criterion):

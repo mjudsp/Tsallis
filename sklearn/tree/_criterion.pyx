@@ -668,7 +668,93 @@ cdef class Gini(ClassificationCriterion):
 
         impurity_left[0] = gini_left / self.n_outputs
         impurity_right[0] = gini_right / self.n_outputs
+######
+cdef class TsallisEntropy(ClassificationCriterion):
+    """Tsallis Entropy impurity criterion.
+    This handles cases where the target is a classification taking values
+    0, 1, ... K-2, K-1. If node m represents a region Rm with Nm observations,
+    then let
+        count_k = 1/ Nm \sum_{x_i in Rm} I(yi = k)
+    be the proportion of class k observations in node m.
+    The Tsallis Entropy is then defined as:
+        index = \sum_{k=0}^{K-1} count_k (1 - count_k)
+              = 1 - \sum_{k=0}^{K-1} count_k ** 2
+    """
 
+    cdef double node_impurity(self) nogil:
+        """Evaluate the impurity of the current node, i.e. the impurity of
+        samples[start:end] using the Tsallis Entropy criterion."""
+
+
+        cdef SIZE_t* n_classes = self.n_classes
+        cdef double* sum_total = self.sum_total
+        cdef double gini = 0.0
+        cdef double sq_count
+        cdef double count_k
+        cdef SIZE_t k
+        cdef SIZE_t c
+
+        for k in range(self.n_outputs):
+            sq_count = 0.0
+
+            for c in range(n_classes[k]):
+                count_k = sum_total[c]
+                sq_count += count_k * count_k
+
+            gini += 1.0 - sq_count / (self.weighted_n_node_samples *
+                                      self.weighted_n_node_samples)
+
+            sum_total += self.sum_stride
+
+        return gini / self.n_outputs
+
+    cdef void children_impurity(self, double* impurity_left,
+                                double* impurity_right) nogil:
+        """Evaluate the impurity in children nodes
+        i.e. the impurity of the left child (samples[start:pos]) and the
+        impurity the right child (samples[pos:end]) using the Gini index.
+        Parameters
+        ----------
+        impurity_left: DTYPE_t
+            The memory address to save the impurity of the left node to
+        impurity_right: DTYPE_t
+            The memory address to save the impurity of the right node to
+        """
+
+        cdef SIZE_t* n_classes = self.n_classes
+        cdef double* sum_left = self.sum_left
+        cdef double* sum_right = self.sum_right
+        cdef double gini_left = 0.0
+        cdef double gini_right = 0.0
+        cdef double sq_count_left
+        cdef double sq_count_right
+        cdef double count_k
+        cdef SIZE_t k
+        cdef SIZE_t c
+
+        for k in range(self.n_outputs):
+            sq_count_left = 0.0
+            sq_count_right = 0.0
+
+            for c in range(n_classes[k]):
+                count_k = sum_left[c]
+                sq_count_left += count_k * count_k
+
+                count_k = sum_right[c]
+                sq_count_right += count_k * count_k
+
+            gini_left += 1.0 - sq_count_left / (self.weighted_n_left *
+                                                self.weighted_n_left)
+
+            gini_right += 1.0 - sq_count_right / (self.weighted_n_right *
+                                                  self.weighted_n_right)
+
+            sum_left += self.sum_stride
+            sum_right += self.sum_stride
+
+        impurity_left[0] = gini_left / self.n_outputs
+        impurity_right[0] = gini_right / self.n_outputs
+######
 
 cdef class RegressionCriterion(Criterion):
     """Abstract regression criterion.

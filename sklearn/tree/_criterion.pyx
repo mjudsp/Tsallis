@@ -691,6 +691,8 @@ cdef class TsallisEntropy(ClassificationCriterion):
         cdef double tsallisEntropy = 0.0
         cdef double sq_count
         cdef double count_k
+        """tsallis parameter"""        
+        cdef double q = 1.0 
         cdef SIZE_t k
         cdef SIZE_t c
 
@@ -729,6 +731,8 @@ cdef class TsallisEntropy(ClassificationCriterion):
         cdef double sq_count_left
         cdef double sq_count_right
         cdef double count_k
+        """tsallis parameter for child nodes"""        
+        cdef double q = 1.0 
         cdef SIZE_t k
         cdef SIZE_t c
 

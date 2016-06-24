@@ -892,8 +892,6 @@ class RandomForestClassifier(ForestClassifier):
     def __init__(self,
                  n_estimators=10,
                  criterion="gini",
-                 custom_0s = (np.arange(0,1.001,0.001) * ( 1 - np.arange(0,1.001,0.001))).toList(),
-                 custom_1s = (np.arange(0,1.001,0.001) * ( 1 - np.arange(0,1.001,0.001))).toList(),
                  pval = [0.0,0.5],
                  max_depth=None,
                  min_samples_split=2,

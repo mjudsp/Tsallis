@@ -721,7 +721,7 @@ cdef class TsallisEntropy(ClassificationCriterion):
             The memory address to save the impurity of the left node to
         impurity_right: DTYPE_t
             The memory address to save the impurity of the right node to
-        """
+        """ 
 
         cdef SIZE_t* n_classes = self.n_classes
         cdef double* sum_left = self.sum_left

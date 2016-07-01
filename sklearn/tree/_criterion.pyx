@@ -703,8 +703,8 @@ cdef class TsallisEntropy(ClassificationCriterion):
                 count_k = sum_total[c]
                 sq_count += count_k * count_k
 
-            tsallisEntropy += 1.0 - sq_count / (self.weighted_n_node_samples *
-                                      self.weighted_n_node_samples)
+            tsallisEntropy += (1.0 / 1.0 - q) * (sq_count / (self.weighted_n_node_samples *
+                                      self.weighted_n_node_samples))
 
             sum_total += self.sum_stride
 
@@ -747,11 +747,11 @@ cdef class TsallisEntropy(ClassificationCriterion):
                 count_k = sum_right[c]
                 sq_count_right += count_k * count_k
 
-            tsallisEntropy_left += 1.0 - sq_count_left / (self.weighted_n_left *
-                                                self.weighted_n_left)
+            tsallisEntropy_left += (1.0 / 1.0 - q) * (sq_count_left / (self.weighted_n_left *
+                                                self.weighted_n_left))
 
-            tsallisEntropy_right += 1.0 - sq_count_right / (self.weighted_n_right *
-                                                  self.weighted_n_right)
+            tsallisEntropy_right += (1.0 / 1.0 - q) * (sq_count_right / (self.weighted_n_right *
+                                                  self.weighted_n_right))
 
             sum_left += self.sum_stride
             sum_right += self.sum_stride
